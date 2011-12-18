@@ -17,7 +17,7 @@ public class ToolkitPa
 		int d=0;
 		for(Edge edge: graph.getEachEdge())
 		{
-			if(edge.getAttribute("mur")=="false")
+			if(edge.getAttribute(marker)==object)
 			{
 				h.addEdge(Integer.toString(d),edge.getNode0().getId(),edge.getNode1().getId());
 				d++;

@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/gs-ui.jar"/>
 	<classpathentry kind="lib" path="lib/mbox2.jar"/>
 	<classpathentry kind="lib" path="lib/pherd.jar"/>
+	<classpathentry kind="lib" path="lib/layers.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
