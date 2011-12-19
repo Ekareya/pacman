@@ -1,117 +1,171 @@
+import java.util.Stack;
 
 import org.graphstream.graph.*;
 import org.graphstream.algorithm.*;
-
 import static pa.pacman.Config.*;
 import processing.core.*;
 import static org.graphstream.algorithm.Toolkit.*;
 
 
 public class Monstre extends Perso
-{	
-	Path c;
-	int compteur;
-	
-public double distMan(Node node, Node target) 
-{	  double xy1[] = nodePosition(node);
-	  double xy2[] = nodePosition(target);
-
-	  double dx = Math.abs(xy2[0] - xy1[0]);
-	  double dy = Math.abs(xy2[1] - xy1[1]);
-
-	  return dx+dy;
-}
-
-	class PacManCosts implements AStar.Costs 
-{   public double heuristic(Node node, Node target) 
-	  {	  return distMan(node,target);	  }
-
-	  public double cost(Node parent, Edge edge, Node next) 
-	  {	  return (next.getAttribute("Monstre") != "true") ? 1 : H*W; 
-	  }
-	}
-	
-	
-  Monstre(PApplet parent)
-   { 
-	  super(parent);
-	  p=parent;
-	  x= (int)p.random(W-1);
-     y= (int)p.random(H-1);
-     c=new Path();
-     c.setRoot(getNode());
-     couleur=p.color(255,0,0);
-     compteur=0;
-  } 
-  //--------------------
-
-  public void deplacer()
-  {aleapath();}
-  
-  public void deplacer(int type,Node pacman)
-  {  enlever();
-    switch(type)
-	 {  case 0:  aleagraph();break;
-	 	case 1:  atable(pacman);break;
-	 				
-	 	default: aleabasic();break;
-  	 	
-	 }
-    afficher();
-  }
-  private void atable(Node pacman)
-  {AStar astar = new AStar(laby);
-  astar.setCosts(new PacManCosts());
-
-	if(c.size()<=1 || distMan(getNode(),pacman)< distMan(c.peekNode(),pacman ))
-	{
-  	astar.compute(pacman.getId(),x+"_"+y); // with A and Z node identifiers in the graph. 
- 	c = astar.getShortestPath();
- 	c.popNode();
-	}
-	node2coord(c.popNode());
-}
-  
-  
- 
-private void aleapath()
-  { AStar astar = new AStar(laby);
-   astar.setCosts(new PacManCosts());
-
-	if(c.size()==1)
-	{
-   	astar.compute(randomNode(laby).getId(),getId()); // with A and Z node identifiers in the graph. 
-  	c = astar.getShortestPath();
-  	c.popNode();
-	}
-	node2coord(c.popNode());
- }
-  
-  
-  private void aleagraph() 
-  {  Node node= getNode();
-  	 int i = node.getInDegree();
-  	 int dep=(int)p.random(i);
-  	 node2coord(node.getEdge(dep).getOpposite(node));
-
-  }
-  
-
-private void aleabasic()
-  {	int dep=(int)p.random(4);
-	switch(dep)
-    {  case 0:  haut();break;
-       case 1:  bas();break;
-       case 2:  gauche();break;
-       case 3:  droite();break;
-    }
-  }
-
-@Override
-protected void paint()
 {
-	// TODO Auto-generated method stub
+	Stack<Node>		c;
+	int		ia;
+	boolean	useSmallGraph	= false;
 	
-}
-  
+	Monstre(PApplet parent, String nom)
+	{
+		this(parent, nom, 1, 0);
+		
+	}
+	
+	Monstre(PApplet parent, String nom, int comportement)
+	{
+		this(parent, nom, comportement, 0);
+	}
+	
+	Monstre(PApplet parent, String nom, int comportement, int frame2)
+	{
+		super(parent);
+		name = nom;
+		p = parent;
+		x = (int) p.random(W - 1);
+		y = (int) p.random(H - 1);
+		vitesse = 30;
+		ia = comportement;
+		direction = 0;
+		frame = frame2;
+		c=new Stack<Node>();
+		orienter();
+	}
+	
+	// --------------------
+	public void setUseSmallGraph(boolean arg)
+	{
+		useSmallGraph = arg;
+	}
+	
+	protected void paintoff()
+	{
+		PImage b;
+		b = p.loadImage("../data/black1.PNG");
+		p.fill(0);
+		p.image(b, PAS / 6, PAS / 6, 2 * PAS / 3, 2 * PAS / 3);
+	}
+	
+	protected void paint()
+	{
+		String dir = "up";
+		switch (direction)
+		{
+			case PConstants.UP:
+				dir = "up";
+				break;
+			case PConstants.DOWN:
+				dir = "down";
+				break;
+			case PConstants.LEFT:
+				dir = "left";
+				break;
+			case PConstants.RIGHT:
+				dir = "right";
+				break;
+		}
+		int truc = (int) Math.abs(frame / (vitesse / 4));
+		PImage b;
+		b = p.loadImage("../data/" + name + dir + ((truc % 2) + 1) + ".PNG");
+		p.fill(0);
+		p.image(b, PAS / 6, PAS / 6, 2 * PAS / 3, 2 * PAS / 3);
+		
+	}
+	
+	public void deplacer()
+	{
+		if (frame == vitesse)
+		{
+			switch (direction)
+			{
+				case PConstants.UP:
+					haut();
+					break;
+				case PConstants.DOWN:
+					bas();
+					break;
+				case PConstants.LEFT:
+					gauche();
+					break;
+				case PConstants.RIGHT:
+					droite();
+					break;
+			}
+			orienter();
+		} else
+			frame++;
+		
+	}
+	
+	public void orienter()
+	{	double[] nextpos = null;
+		switch (ia)
+		{
+			case 1:
+				nextpos=welcomeToRandomLand();
+				break;
+			case 2:
+				aStarIsBorn();
+				break;
+			case 3:
+				dijkstraction();
+				break;
+			case 4:
+				hunted();
+				break;
+		}
+		
+		int x0 = (int) nextpos[0];
+		int y0 = (int) nextpos[1];
+		if (x == x0)
+		{
+			if (y < y0)
+				direction = PConstants.DOWN;
+			else if (y > y0)
+				direction = PConstants.UP;
+		} else if (y == y0)
+		{
+			if (x < x0)
+				direction = PConstants.RIGHT;
+			else if (x > x0)
+				direction = PConstants.LEFT;
+		}
+	}
+	
+	private double[] welcomeToRandomLand()
+	{	
+		while (c.size() < 1)
+		{	AStarPa astar = new AStarPa();
+			astar.setStart(getNode());
+			astar.setMonsterName(name);
+			Node finish=getNode();
+			while(astar.distMan(finish,getNode())<=4)
+			{	finish = randomNode(laby);
+				astar.setFinish(finish);
+			}
+			astar.init(laby);
+			astar.compute();
+			c = astar.getPath();
+			c.pop();
+		}
+		c.peek().addAttribute("ui.class","notinpath");
+		return nodePosition(c.pop());
+	}
+	
+	private void hunted()
+	{}
+	
+	private void dijkstraction()
+	{}
+	
+	private void aStarIsBorn()
+	{}
+	
 }

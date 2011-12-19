@@ -3,47 +3,100 @@ import processing.core.*;
 
 public class Pacman extends Perso
 {
-		
-
-	Pacman(PApplet parent)
+	int	nextDir;
+	
+	Pacman(PApplet parent,String nom)
 	{
 		super(parent);
-		couleur = p.color(240, 195, 0);
+		vitesse = 20;
+		name=nom;
 	}
 	
 	// ---------------
 	void deplacer()
 	{
-		enlever();
-		switch (p.keyCode)
-		{
-			case PConstants.UP:
-				haut();
-				break;
-			case PConstants.DOWN:
-				bas();
-				break;
-			case PConstants.LEFT:
-				gauche();
-				break;
-			case PConstants.RIGHT:
-				droite();
-				break;
+		if (frame >= vitesse)
+		{	
+			switch (nextDir)
+			{  case -PConstants.UP:
+				case PConstants.UP:
+					haut();
+					break;
+				case -PConstants.DOWN:
+				case PConstants.DOWN:
+					bas();
+					break;
+				case -PConstants.LEFT:
+				case PConstants.LEFT:
+					gauche();
+					break;
+				case -PConstants.RIGHT:
+				case PConstants.RIGHT:
+					droite();
+					break;
+				default: frame=vitesse;break;
+			}
+			if (getNode().getAttribute("gomme") == "true")
+			{
+				getNode().addAttribute("gomme", "false");
+				score++;
+			}
+			if(nextDir<0)
+			{
+				direction=0;
+			}
 		}
-		if (getNode().getAttribute("gomme") == "true")
-		{
-			getNode().addAttribute("gomme", "false");
-			score++;
-		}
-		afficher();
-	}
-	
-	protected void paint()
-	{
-		p.fill(couleur);
-		p.ellipse(PAS/2,PAS/2,PAS/2,PAS/2);
+		else if(direction==0)
+		{frame=vitesse;}
+		else
+			frame++;
 
 		
+	}
+	
+	public void orienter()
+	{
+			if(nextDir>0 && ((p.keyCode==PConstants.UP&&direction==PConstants.DOWN )|| (p.keyCode==PConstants.LEFT&&direction==PConstants.RIGHT)||( p.keyCode==PConstants.RIGHT&&direction==PConstants.LEFT)||( p.keyCode==PConstants.DOWN&&direction==PConstants.UP)))
+					{
+					nextDir=-nextDir;
+					}
+					
+			else
+				nextDir=p.keyCode;
+	}
+	protected void paintoff()
+	{		
+	p.fill(0);
+	p.rect(PAS / 6, PAS / 6, 2 * PAS / 3, 2 * PAS / 3);
+		
+	}
+	protected void paint()
+	{	
+		String dir="up";
+		int direc = (direction==0)?(nextDir<0)?-nextDir:nextDir:direction;
+		switch (direc)
+		{
+			case PConstants.UP:
+				dir="up";
+				break;
+			case PConstants.DOWN:
+				dir="down";
+				break;
+			case PConstants.LEFT:
+				dir="left";
+				break;
+			case PConstants.RIGHT:
+				dir="right";
+				break;
+		}
+		PImage b;
+		int truc=(int)Math.abs(frame/(vitesse/4));
+		truc=truc%4;
+		if (truc==0)
+				truc=2;
+		b = p.loadImage("../data/pac"+dir+truc+".PNG");
+		p.fill(0);
+		p.image(b, PAS / 6, PAS / 6, 2 * PAS / 3, 2 * PAS / 3);
 	}
 	
 }

@@ -1,3 +1,5 @@
+import java.util.HashSet;
+
 import com.nootropic.processing.layers.*;
 import processing.core.*;
 import static pa.pacman.Config.*;
@@ -9,34 +11,34 @@ import static org.graphstream.algorithm.Toolkit.*;
 
 public class Test extends PApplet
 {
-	Pacman							moi					= new Pacman(this);
-	int								oldscore				= score;
-	AppletLayers					layers;
-	PFont								maTypo				= createFont("arial", 60);
 	
-	private static final long	serialVersionUID	= 1L;
+	Pacman			pacman;	
+	Monstre			blinky;	
+	Monstre			pinky	;	
+	Monstre			inky	;	
+	Monstre			clyde	;	
+	HashSet<Perso>	perso		= new HashSet<Perso>();
+	int				oldscore	= score;
 	
-	private void line2(int x0, int y0, int x1, int y1, int color)
-	{
-		stroke(color);
-		line(x0 * PAS + MARGE, y0 * PAS + MARGE, x1 * PAS + MARGE, y1 * PAS + MARGE);
-	}
-	
-	public void drawPill(int x, int y)
-	{
-		pushMatrix();
-		translate(x * PAS + MARGE, y * PAS + MARGE);
-		fill(255);
-		ellipse(PAS / 2, PAS / 2, PAS / 4, PAS / 4);
-		popMatrix();
-	}
-	
+	// -------------------------
 	public void setup()
-	{
+	{	
+
+	
 		size(MARGE * 2 + W * PAS, MARGE * 2 + H * PAS);
 		background(0);
+
 		layers = new AppletLayers(this);
 		laby = weight(rectGridGenerator(H, W, 0));
+		String stylesheet= 
+				"node.notinpath{fill-color:black;size:1px;}"+
+				"node.blinky{fill-color:red;size:10px;}"+
+				"node.pinky{fill-color:pink;size:10px;}"+
+				"node.inky{fill-color:cyan;size:10px;}"+
+				"node.clyde{fill-color:orange;size:10px;}";
+		
+		laby.addAttribute("ui.stylesheet",stylesheet);
+		//laby.display(false);
 		LabyGenerator gen = new LabyGenerator();
 		gen.init(laby);
 		gen.setRemoveDeadEnd(1);
@@ -46,15 +48,23 @@ public class Test extends PApplet
 		gen.compute();
 		
 		for (Node node : laby)
-		{
+		{	node.addAttribute("ui.label",node.getId());
 			node.addAttribute("gomme", "true");
 			node.addAttribute("superGomme", "false");
 			node.addAttribute("monstre", "false");
 			node.addAttribute("pacman", "false");
+			node.addAttribute("ui.class","notinpath");
 		}
 		
 		laby.getNode("0_0").addAttribute("pacman", "true");
 		laby.getNode("0_0").addAttribute("gomme", "false");
+		
+		for(Edge edge:laby.getEachEdge())
+		{
+			edge.addAttribute("weight",1);
+		}
+			
+		
 		for (int i = 0; i < 3; i++)
 		{	
 			
@@ -103,34 +113,104 @@ public class Test extends PApplet
 		}
 		fill(255);
 		text(Integer.toString(score), 10, 15);
-		moi.afficher();
+
+pacman	= new Pacman(this, "pacman");
+blinky	= new Monstre(this, "blinky");
+pinky		= new Monstre(this, "pinky");
+inky		= new Monstre(this, "inky");
+clyde		= new Monstre(this, "clyde");
+perso.add(pacman);
+perso.add(blinky);
+perso.add(pinky);
+perso.add(inky);
+perso.add(clyde);
+
+		for (Perso bidule : perso)
+		{
+			bidule.afficher();
+		}
 	}
+	
+	int	i	= 0;
 	
 	public void draw()
 	{
-		if (score > oldscore)
+		for (Perso bidule : perso)
 		{
-			oldscore = score;
-			fill(0);
-			rect(0, 0, H * PAS, MARGE);
-			fill(255);
-			text(Integer.toString(score), MARGE / 2, 3 * MARGE / 4);
+			bidule.enlever();
 		}
-		if(score==H*W-1)
-		{			
+		
+		for (Perso bidule : perso)
+		{
+			bidule.deplacer();
+		}
+		
+		for (Perso bidule : perso)
+		{
+			bidule.afficher();
+		}
+		Perso mort=null;
+		for(Perso bidule :perso)
+		{
+			if(bidule==pacman)
+				continue;
+			if(bidule.x==pacman.x && bidule.y==pacman.y)
+			{
+				mort=bidule;
+			}
+		}
+		if(mort!=null)
+			perso.remove(mort);
+		
+		
+		
+//		if (score > oldscore)
+//		{
+//			oldscore = score;
+//			fill(0);
+//			rect(0, 0, H * PAS, MARGE - 1);
+//			fill(255);
+//			text(Integer.toString(score), MARGE / 2, 3 * MARGE / 4);
+//		}
+//		if (score == H * W - 1)
+//		{
+//			fill(0);
+//			rect(0, 0, H * PAS, MARGE - 1);
+//			fill(255);
+//			text("Bravo!!!", MARGE / 2, 3 * MARGE / 4);
+//			
+//		}
 		fill(0);
-		rect(0, 0, H * PAS, MARGE);
+		rect(0, 0, H * PAS, MARGE - 1);
 		fill(255);
-		text("Bravo!!!", MARGE / 2, 3 * MARGE / 4);
-			
-		}
+		text(pacman.getId(), MARGE / 2, 3 * MARGE / 4);
 	}
 	
 	public void keyPressed()
 	{
 		if (key == CODED)
 		{
-			moi.deplacer();
+			pacman.orienter();
+			
 		}
+		
+	}
+	
+	
+	private static final long	serialVersionUID	= 1L;
+	AppletLayers					layers;
+	
+	public void drawPill(int x, int y)
+	{
+		pushMatrix();
+		translate(x * PAS + MARGE, y * PAS + MARGE);
+		fill(255);
+		ellipse(PAS / 2, PAS / 2, PAS / 4, PAS / 4);
+		popMatrix();
+	}
+	private void line2(int x0, int y0, int x1, int y1, int color)
+	{
+		stroke(color);
+		line(x0 * PAS + MARGE, y0 * PAS + MARGE, x1 * PAS + MARGE, y1 * PAS + MARGE);
 	}
 }
