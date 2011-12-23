@@ -75,7 +75,7 @@ public class ToolkitPa
 			gy.getNode(Integer.toString(i)).addAttribute("xyz", 0, i, 0);
 			
 		}
-		if (deep != 0)
+		if (deep > 1)
 		{
 			Graph gz = new SingleGraph("z", false, true);
 			gz.addNode("0").addAttribute("xyz", 0, 0, 0);

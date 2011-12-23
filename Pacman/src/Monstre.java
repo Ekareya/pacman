@@ -31,7 +31,7 @@ public class Monstre extends Perso
 		p = parent;
 		x = (int) p.random(W - 1);
 		y = (int) p.random(H - 1);
-		vitesse = 30;
+		vitesse = 22;
 		ia = comportement;
 		direction = 0;
 		frame = frame2;

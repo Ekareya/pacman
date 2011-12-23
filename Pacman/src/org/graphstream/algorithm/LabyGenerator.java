@@ -107,7 +107,7 @@ public class LabyGenerator implements Algorithm
 	 * donc pas de noeud maitre et pas de 4-cycles ( car moche )
 	 * de plus le graphe utiliser pour detecter les noeuds maitre me seras utile
 	 * pour bouger les fantomes ( grapheplus petit que le graphe complet donc
-	 * calcul plus facile)
+	 * calcul plus rapide)
 	 * 
 	 * 
 	 * 
@@ -151,7 +151,7 @@ public class LabyGenerator implements Algorithm
 					// un chiffre voulait pas sortir a l'alea. du coup j'ai fait
 					// l'inverse j'ai supprimer la valeur obtenus
 					// et donc ca me permet d'être sur que chaque sommet seras
-					// visiter une seule fois
+					// visiter une et une seule fois
 					ArrayList<Integer> intset = new ArrayList<Integer>();
 					if (!find)
 					{

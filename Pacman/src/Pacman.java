@@ -8,7 +8,7 @@ public class Pacman extends Perso
 	Pacman(PApplet parent,String nom)
 	{
 		super(parent);
-		vitesse = 20;
+		vitesse = 15;
 		name=nom;
 	}
 	
@@ -67,7 +67,7 @@ public class Pacman extends Perso
 	protected void paintoff()
 	{		
 	p.fill(0);
-	p.rect(PAS / 6, PAS / 6, 2 * PAS / 3, 2 * PAS / 3);
+	p.rect(PAS / 6-(PAS/vitesse), PAS / 6-(PAS/vitesse), 2 * PAS / 3+(PAS/vitesse)*2, 2 * PAS / 3+(PAS/vitesse)*2);
 		
 	}
 	protected void paint()

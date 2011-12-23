@@ -1,16 +1,18 @@
 import java.util.HashSet;
-
-import com.nootropic.processing.layers.*;
 import processing.core.*;
 import static pa.pacman.Config.*;
-
 import org.graphstream.algorithm.LabyGenerator;
 import org.graphstream.graph.*;
 import static org.graphstream.algorithm.ToolkitPa.*;
 import static org.graphstream.algorithm.Toolkit.*;
 
 public class Test extends PApplet
+
 {
+public static void main(String [] args){
+   PApplet.main(new String[] { "Test" });
+	
+} 
 	
 	Pacman			pacman;	
 	Monstre			blinky;	
@@ -20,7 +22,7 @@ public class Test extends PApplet
 	HashSet<Perso>	perso		= new HashSet<Perso>();
 	int				oldscore	= score;
 	
-	// -------------------------
+	//-------------------------
 	public void setup()
 	{	
 
@@ -28,7 +30,6 @@ public class Test extends PApplet
 		size(MARGE * 2 + W * PAS, MARGE * 2 + H * PAS);
 		background(0);
 
-		layers = new AppletLayers(this);
 		laby = weight(rectGridGenerator(H, W, 0));
 		String stylesheet= 
 				"node.notinpath{fill-color:black;size:1px;}"+
@@ -160,30 +161,27 @@ perso.add(clyde);
 			}
 		}
 		if(mort!=null)
-			perso.remove(mort);
+			perso.remove(pacman);
 		
 		
 		
-//		if (score > oldscore)
-//		{
-//			oldscore = score;
-//			fill(0);
-//			rect(0, 0, H * PAS, MARGE - 1);
-//			fill(255);
-//			text(Integer.toString(score), MARGE / 2, 3 * MARGE / 4);
-//		}
-//		if (score == H * W - 1)
-//		{
-//			fill(0);
-//			rect(0, 0, H * PAS, MARGE - 1);
-//			fill(255);
-//			text("Bravo!!!", MARGE / 2, 3 * MARGE / 4);
-//			
-//		}
-		fill(0);
-		rect(0, 0, H * PAS, MARGE - 1);
-		fill(255);
-		text(pacman.getId(), MARGE / 2, 3 * MARGE / 4);
+		if (score > oldscore)
+		{
+			oldscore = score;
+			fill(0);
+			rect(0, 0, H * PAS, MARGE - 1);
+			fill(255);
+			text(Integer.toString(score), MARGE / 2, 3 * MARGE / 4);
+		}
+		if (score == H * W - 1)
+		{
+			fill(0);
+			rect(0, 0, H * PAS, MARGE - 1);
+			fill(255);
+			text("Bravo!!! Maintenant t'as l'air malin, coincé dans un labyrinthe sans rien à manger...", MARGE / 2, 3 * MARGE / 4);
+			
+			
+		}
 	}
 	
 	public void keyPressed()
@@ -197,9 +195,7 @@ perso.add(clyde);
 	}
 	
 	
-	private static final long	serialVersionUID	= 1L;
-	AppletLayers					layers;
-	
+	private static final long	serialVersionUID	= 1L;	
 	public void drawPill(int x, int y)
 	{
 		pushMatrix();
