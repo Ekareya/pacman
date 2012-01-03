@@ -36,6 +36,7 @@ public class Pacman extends Perso
 					break;
 				default: frame=vitesse;break;
 			}
+			pacNode=getNode();
 			if (getNode().getAttribute("gomme") == "true")
 			{
 				getNode().addAttribute("gomme", "false");

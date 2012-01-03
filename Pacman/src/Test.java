@@ -1,45 +1,43 @@
+import java.util.ArrayList;
 import java.util.HashSet;
 import processing.core.*;
 import static pa.pacman.Config.*;
 import org.graphstream.algorithm.LabyGenerator;
 import org.graphstream.graph.*;
+
 import static org.graphstream.algorithm.ToolkitPa.*;
 import static org.graphstream.algorithm.Toolkit.*;
 
 public class Test extends PApplet
 
 {
-public static void main(String [] args){
-   PApplet.main(new String[] { "Test" });
+	public static void main(String[] args)
+	{
+		PApplet.main(new String[] { "Test" });
+		
+	}
 	
-} 
-	
-	Pacman			pacman;	
-	Monstre			blinky;	
-	Monstre			pinky	;	
-	Monstre			inky	;	
-	Monstre			clyde	;	
+	Pacman			pacman;
+	Monstre			blinky;
+	Monstre			pinky;
+	Monstre			inky;
+	Monstre			clyde;
 	HashSet<Perso>	perso		= new HashSet<Perso>();
 	int				oldscore	= score;
 	
-	//-------------------------
+	// -------------------------
 	public void setup()
-	{	
-
-	
+	{
+		
 		size(MARGE * 2 + W * PAS, MARGE * 2 + H * PAS);
 		background(0);
-
-		laby = weight(rectGridGenerator(H, W, 0));
-		String stylesheet= 
-				"node.notinpath{fill-color:black;size:1px;}"+
-				"node.blinky{fill-color:red;size:10px;}"+
-				"node.pinky{fill-color:pink;size:10px;}"+
-				"node.inky{fill-color:cyan;size:10px;}"+
-				"node.clyde{fill-color:orange;size:10px;}";
 		
-		laby.addAttribute("ui.stylesheet",stylesheet);
-		//laby.display(false);
+		laby = weight(rectGridGenerator(H, W, 0));
+		String stylesheet = "node.notinpath{fill-color:black;size:10px;}" + "node.blinky{fill-color:red;size:10px;}" + "node.pinky{fill-color:pink;size:10px;}"
+				+ "node.inky{fill-color:cyan;size:10px;}" + "node.clyde{fill-color:orange;size:10px;}";
+		
+		laby.addAttribute("ui.stylesheet", stylesheet);
+		// laby.display(false);
 		LabyGenerator gen = new LabyGenerator();
 		gen.init(laby);
 		gen.setRemoveDeadEnd(1);
@@ -49,22 +47,18 @@ public static void main(String [] args){
 		gen.compute();
 		
 		for (Node node : laby)
-		{	node.addAttribute("ui.label",node.getId());
-			node.addAttribute("gomme", "true");
-			node.addAttribute("superGomme", "false");
-			node.addAttribute("monstre", "false");
-			node.addAttribute("pacman", "false");
-			node.addAttribute("ui.class","notinpath");
-		}
-		
-		laby.getNode("0_0").addAttribute("pacman", "true");
-		laby.getNode("0_0").addAttribute("gomme", "false");
-		
-		for(Edge edge:laby.getEachEdge())
 		{
-			edge.addAttribute("weight",1);
+			node.addAttribute("ui.label", node.getId());
+			node.addAttribute("gomme", "true");
+			node.addAttribute("monstre", "false");
+			node.addAttribute("superGomme", "false");
+			node.addAttribute("ui.class", "notinpath");
 		}
-			
+		
+		for (Edge edge : laby.getEachEdge())
+		{
+			edge.addAttribute("weight", 1);
+		}
 		
 		for (int i = 0; i < 3; i++)
 		{	
@@ -102,6 +96,43 @@ public static void main(String [] args){
 				line2(x0, y0 + 1, x1 + 1, y1, 0);
 			}
 		}
+		int tunnelhor = 2;
+		for (int i = 0; i < tunnelhor; i++)
+		{
+			try
+			{
+				int alea = (int) Math.floor(Math.random() * H);
+				
+				Edge tunnel = laby.addEdge(Integer.toString(2 * laby.getEdgeCount()), nodeName(0, alea), nodeName(W - 1, alea));
+				tunnel.addAttribute("mur", "false");
+				tunnel.addAttribute("weight", 1);// augmenter si on veux que les
+															// fantomes passent moins
+				line2(0, alea, 0, alea + 1, 0);
+				line2(W, alea, W, alea + 1, 0);
+			} catch (EdgeRejectedException e)
+			{
+				continue;
+			}
+		}
+		
+		int tunnelvert = 1;
+		for (int i = 0; i < tunnelvert; i++)
+		{
+			int alea = (int) Math.floor(Math.random() * W);
+			try
+			{
+				Edge tunnel = laby.addEdge(Integer.toString(2 *laby.getEdgeCount()), nodeName(alea, 0), nodeName(alea,H-1));
+				tunnel.addAttribute("mur", "false");
+				tunnel.addAttribute("weight", 1);// augmenter si on veux que les
+															// fantomes ne passent pas
+				line2(alea, 0, alea + 1, 0,0);
+				line2(alea,H, alea+1, H, 0);
+			} catch (EdgeRejectedException e)
+			{
+				continue;
+			}
+		}
+		
 		for (Node node : laby)
 		{
 			if (node.getAttribute("gomme") == "true")
@@ -114,18 +145,72 @@ public static void main(String [] args){
 		}
 		fill(255);
 		text(Integer.toString(score), 10, 15);
-
-pacman	= new Pacman(this, "pacman");
-blinky	= new Monstre(this, "blinky");
-pinky		= new Monstre(this, "pinky");
-inky		= new Monstre(this, "inky");
-clyde		= new Monstre(this, "clyde");
-perso.add(pacman);
-perso.add(blinky);
-perso.add(pinky);
-perso.add(inky);
-perso.add(clyde);
-
+		
+		smallLaby = subGraph(laby, "mur", "false");
+		
+		for (Edge edge : smallLaby.getEachEdge())
+		{
+			edge.addAttribute("weight", 1);
+		}
+		
+		int d = smallLaby.getEdgeCount();
+		edgeStyle(laby, "mur", "false", "fill-color:blue;size:5px;");
+		smallLaby.display(false);
+		laby.display(false);
+		for (Node node : smallLaby)
+		{
+			int i = node.getInDegree();
+			if (i == 2)
+			{
+				ArrayList<Node> temp = getNeighbourList(node);
+				Edge edge0 = node.getEdgeBetween(temp.get(0));
+				Edge edge1 = node.getEdgeBetween(temp.get(1));
+				if (!temp.get(0).hasEdgeBetween(temp.get(1)))// verif pour garder un
+																			// graphe simple
+				{
+					Edge edge = smallLaby.addEdge(Integer.toString(d), temp.get(0), temp.get(1));
+					d++;
+					int poid0 = (Integer) edge0.getAttribute("weight");
+					int poid1 = (Integer) edge1.getAttribute("weight");
+					edge.addAttribute("weight", poid0 + poid1);
+					edge.addAttribute("ui.label", poid0 + poid1);
+					
+				} else
+				{
+					Edge edge = temp.get(0).getEdgeBetween(temp.get(1));
+					int poid = (Integer) edge0.getAttribute("weight") + (Integer) edge1.getAttribute("weight");
+					if (poid < (Integer) edge.getAttribute("weight"))
+					{
+						edge.addAttribute("weight", poid);
+						edge.addAttribute("ui.label", poid);
+					}
+				}
+				smallLaby.removeEdge(edge0);
+				smallLaby.removeEdge(edge1);
+				
+			}
+		}
+		for (Node node : smallLaby)
+		{
+			if (node.getInDegree() == 0)
+				node.addAttribute("ui.style", "size:0px;");
+			else
+				node.addAttribute("ui.label", node.getId());
+		}
+		
+		pacman = new Pacman(this, "pacman");
+		pacNode = pacman.getNode();
+		blinky = new Monstre(this, "blinky", 2);
+		pinky = new Monstre(this, "pinky", 2);
+		inky = new Monstre(this, "inky", 2);
+		clyde = new Monstre(this, "clyde", 2);
+		
+		perso.add(pacman);
+		perso.add(blinky);
+		perso.add(pinky);
+		perso.add(inky);
+		perso.add(clyde);
+		
 		for (Perso bidule : perso)
 		{
 			bidule.afficher();
@@ -150,20 +235,17 @@ perso.add(clyde);
 		{
 			bidule.afficher();
 		}
-		Perso mort=null;
-		for(Perso bidule :perso)
+		
+		for (Perso bidule : perso)
 		{
-			if(bidule==pacman)
+			if (bidule == pacman)
 				continue;
-			if(bidule.x==pacman.x && bidule.y==pacman.y)
+			if (bidule.x == pacman.x && bidule.y == pacman.y)
 			{
-				mort=bidule;
+				noLoop();
+				break;
 			}
 		}
-		if(mort!=null)
-			perso.remove(pacman);
-		
-		
 		
 		if (score > oldscore)
 		{
@@ -180,7 +262,6 @@ perso.add(clyde);
 			fill(255);
 			text("Bravo!!! Maintenant t'as l'air malin, coincé dans un labyrinthe sans rien à manger...", MARGE / 2, 3 * MARGE / 4);
 			
-			
 		}
 	}
 	
@@ -194,8 +275,8 @@ perso.add(clyde);
 		
 	}
 	
+	private static final long	serialVersionUID	= 1L;
 	
-	private static final long	serialVersionUID	= 1L;	
 	public void drawPill(int x, int y)
 	{
 		pushMatrix();
@@ -204,6 +285,7 @@ perso.add(clyde);
 		ellipse(PAS / 2, PAS / 2, PAS / 4, PAS / 4);
 		popMatrix();
 	}
+	
 	private void line2(int x0, int y0, int x1, int y1, int color)
 	{
 		stroke(color);

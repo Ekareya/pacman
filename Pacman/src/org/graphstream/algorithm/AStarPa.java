@@ -42,15 +42,16 @@ public class AStarPa implements Algorithm
 	protected Graph									graph;
 	protected Node										start;
 	protected Node										finish;
-	protected HashMap<Node, BigNode>				open		= new HashMap<Node, BigNode>();
-	protected HashMap<Integer, HashSet<Node>>	open2		= new HashMap<Integer, HashSet<Node>>();
-	protected int										best		= 0;
-	protected HashMap<Node, BigNode>				close		= new HashMap<Node, BigNode>();
-	protected Path										path		= new Path();
+	protected HashMap<Node, BigNode>				open			= new HashMap<Node, BigNode>();
+	protected HashMap<Integer, HashSet<Node>>	open2			= new HashMap<Integer, HashSet<Node>>();
+	protected int										best			= 0;
+	protected HashMap<Node, BigNode>				close			= new HashMap<Node, BigNode>();
+	protected Path										path			= new Path();
 	protected String									marker;
 	protected Object									object;
-	protected String									weight	= "weight";
-	protected String monsterName="notinpath";
+	protected String									weight		= "weight";
+	protected String									monsterName	= "notinpath";
+	
 	public void init(Graph g)
 	{
 		graph = g;
@@ -71,8 +72,12 @@ public class AStarPa implements Algorithm
 	{
 		weight = mark;
 	}
+	
 	public void setMonsterName(String name)
-	{monsterName=name;}
+	{
+		monsterName = name;
+	}
+	
 	public void setStart(String startnode)
 	{
 		start = graph.getNode(startnode);
@@ -111,7 +116,7 @@ public class AStarPa implements Algorithm
 	public void compute()
 	{
 		best = distMan(start, finish);
-		open.put(start, new BigNode(start, new BigNode(null,null,0,0), 0, best));
+		open.put(start, new BigNode(start, new BigNode(null, null, 0, 0), 0, best));
 		
 		insertIntoOpen2(best, start);
 		
@@ -128,7 +133,11 @@ public class AStarPa implements Algorithm
 			for (Edge edge : bestNode.getEachEdge())
 			{
 				Node opNode = edge.getOpposite(bestNode);
-				int a = cost(edge) + open.get(bestNode).a;
+				int a=0;
+				try{a = cost(opNode) + open.get(bestNode).a;}
+				catch(NullPointerException e){ 
+					continue;}//bof bof:p
+				
 				int z = distMan(opNode, finish);
 				int m = a + z;
 				
@@ -140,6 +149,8 @@ public class AStarPa implements Algorithm
 					if (open.get(opNode).m > m)
 					{
 						open.get(opNode).update(parent, m, a);
+						open2.get(open.get(opNode).m).remove(opNode);
+						insertIntoOpen2(m,opNode);
 					} else
 					{
 						continue;
@@ -160,25 +171,36 @@ public class AStarPa implements Algorithm
 	}
 	
 	private void makePath()
-	{	Node node=finish;
+	{
+		Node node = finish;
 		path.setRoot(node);
 		Edge edge;
-		Node nextNode=close.get(node).parent.node;
-		while(nextNode!=null)
-		{	node.addAttribute("ui.class",monsterName);
-			edge=node.getEdgeBetween(nextNode);
-			path.push(node,edge);
-			node=nextNode;
-			nextNode=close.get(node).parent.node;
+		Node nextNode = close.get(node).parent.node;
+		while (nextNode != null)
+		{
+			node.addAttribute("ui.class", monsterName);
+			edge = node.getEdgeBetween(nextNode);
+			try{path.push(node, edge);}
+			catch(NullPointerException e){ 
+				continue;}//bof bof :p)
+			node = nextNode;
+			try{nextNode = close.get(node).parent.node;}
+			catch(NullPointerException e){ 
+				continue;}//bof bof :p)
 		}
 		
+	}
+	private int cost(Node node)
+	{
+		return (node.getAttribute("monstre")=="true")?10:1;
 	}
 	
 	private int cost(Edge edge)
 	{
-		Object att = edge.getAttribute(weight);
+		//Object att = edge.getAttribute(weight);
 		
-		return (Integer) ((att != null) ? att : 1);
+		//return (Integer) ((att != null) ? att : 1);
+		return 1;
 	}
 	
 	private Node getBest()
@@ -186,7 +208,7 @@ public class AStarPa implements Algorithm
 		Node result = null;
 		while (result == null && graph.getNodeCount() >= best)
 		{
-			if (open2.get(best)==null || open2.get(best).isEmpty())
+			if (open2.get(best) == null || open2.get(best).isEmpty())
 			{
 				best++;
 			} else
@@ -202,11 +224,22 @@ public class AStarPa implements Algorithm
 	
 	private void insertIntoOpen2(int best2, Node start2)
 	{
-		if (open2.get(best2)==null || open2.get(best2).isEmpty())
+		if (open2.get(best2) == null || open2.get(best2).isEmpty())
 		{
 			open2.put(best2, new HashSet<Node>());
 		}
 		open2.get(best2).add(start2);
+	}
+	
+	public void reset()
+	{
+		start = null;
+		finish = null;
+		open = new HashMap<Node, BigNode>();
+		open2 = new HashMap<Integer, HashSet<Node>>();
+		best = 0;
+		close = new HashMap<Node, BigNode>();
+		path = new Path();
 	}
 	
 }

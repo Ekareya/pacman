@@ -5,13 +5,14 @@ import org.graphstream.algorithm.*;
 import static pa.pacman.Config.*;
 import processing.core.*;
 import static org.graphstream.algorithm.Toolkit.*;
-
+import static org.graphstream.algorithm.ToolkitPa.*;
 
 public class Monstre extends Perso
 {
-	Stack<Node>		c;
-	int		ia;
-	boolean	useSmallGraph	= false;
+	Stack<Node>	c;
+	int			ia;
+	boolean		useSmallGraph	= false;
+	AStarPa		astar				= new AStarPa();
 	
 	Monstre(PApplet parent, String nom)
 	{
@@ -29,14 +30,20 @@ public class Monstre extends Perso
 		super(parent);
 		name = nom;
 		p = parent;
-		x = (int) p.random(W - 1);
-		y = (int) p.random(H - 1);
+		while (distMan(pacNode, getNode()) < trackingDistance)
+		{
+			x = (int) p.random(W - 1);
+			y = (int) p.random(H - 1);
+		}
 		vitesse = 22;
 		ia = comportement;
 		direction = 0;
 		frame = frame2;
-		c=new Stack<Node>();
+		astar.setMonsterName(name);
+		astar.init(laby);
+		c = new Stack<Node>();
 		orienter();
+		
 	}
 	
 	// --------------------
@@ -83,9 +90,10 @@ public class Monstre extends Perso
 	{
 		if (frame == vitesse)
 		{
+			getNode().addAttribute("monstre","false");
 			switch (direction)
 			{
-				case PConstants.UP:
+				case PConstants.UP:					
 					haut();
 					break;
 				case PConstants.DOWN:
@@ -99,20 +107,22 @@ public class Monstre extends Perso
 					break;
 			}
 			orienter();
+			getNode().addAttribute("monstre","true");
 		} else
 			frame++;
 		
 	}
 	
 	public void orienter()
-	{	double[] nextpos = null;
+	{
+		double[] nextpos = null;
 		switch (ia)
 		{
 			case 1:
-				nextpos=welcomeToRandomLand();
+				nextpos = welcomeToRandomLand();
 				break;
 			case 2:
-				aStarIsBorn();
+				nextpos = aStarIsBorn();
 				break;
 			case 3:
 				dijkstraction();
@@ -124,38 +134,58 @@ public class Monstre extends Perso
 		
 		int x0 = (int) nextpos[0];
 		int y0 = (int) nextpos[1];
-		if (x == x0)
+		if (Math.abs(x0 - x + y0 - y) != 1)
 		{
-			if (y < y0)
-				direction = PConstants.DOWN;
-			else if (y > y0)
-				direction = PConstants.UP;
-		} else if (y == y0)
+			if (x == x0)
+			{
+				if (y > y0)
+					direction = PConstants.DOWN;
+				else if (y < y0)
+					direction = PConstants.UP;
+			} else if (y == y0)
+			{
+				if (x > x0)
+					direction = PConstants.RIGHT;
+				else if (x < x0)
+					direction = PConstants.LEFT;
+				
+			}
+		} else
 		{
-			if (x < x0)
-				direction = PConstants.RIGHT;
-			else if (x > x0)
-				direction = PConstants.LEFT;
+			if (x == x0)
+			{
+				if (y < y0)
+					direction = PConstants.DOWN;
+				else if (y > y0)
+					direction = PConstants.UP;
+			} else if (y == y0)
+			{
+				if (x < x0)
+					direction = PConstants.RIGHT;
+				else if (x > x0)
+					direction = PConstants.LEFT;
+			}
 		}
 	}
 	
 	private double[] welcomeToRandomLand()
-	{	
-		while (c.size() < 1)
-		{	AStarPa astar = new AStarPa();
+	{
+		if (c.size() < 1)
+		{
+			astar.reset();
 			astar.setStart(getNode());
-			astar.setMonsterName(name);
-			Node finish=getNode();
-			while(astar.distMan(finish,getNode())<=4)
-			{	finish = randomNode(laby);
+			Node finish = getNode();
+			while (astar.distMan(finish, getNode()) <= 4)
+			{
+				finish = randomNode(laby);
 				astar.setFinish(finish);
 			}
-			astar.init(laby);
+			
 			astar.compute();
 			c = astar.getPath();
 			c.pop();
 		}
-		c.peek().addAttribute("ui.class","notinpath");
+		c.peek().addAttribute("ui.class", "notinpath");
 		return nodePosition(c.pop());
 	}
 	
@@ -165,7 +195,23 @@ public class Monstre extends Perso
 	private void dijkstraction()
 	{}
 	
-	private void aStarIsBorn()
-	{}
+	private double[] aStarIsBorn()
+	{
+		if (astar.distMan(getNode(), pacNode) <= trackingDistance)
+		{
+			if (c.size() < 1 || (random.nextBoolean() && distMan(getNode(), pacNode) < distMan(c.peek(), pacNode)))
+			{
+				astar.reset();
+				astar.setStart(getNode());
+				astar.setFinish(pacNode);
+				astar.compute();
+				c = astar.getPath();
+				c.pop();
+			}
+			c.peek().addAttribute("ui.class", "notinpath");
+			return nodePosition(c.pop());
+		} else
+			return welcomeToRandomLand();
+	}
 	
 }

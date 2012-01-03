@@ -53,10 +53,17 @@ abstract class Perso
 		y = (int) xy0[1];
 	}
 	
+	public int mod(int x0,int y0)
+	{	y0=Math.abs(y0);
+		int result=x0%y0;
+		return(result>=0)?result:y0+result;
+	}
+	
 	protected boolean verif(int x0, int y0, int x1, int y1)
-	{
-		Node node = getNode(getId(x0, y0));
-		return node.hasEdgeBetween(getId(x1, y1));
+	{	
+		
+		Node node = getNode(getId(mod(x0,W),mod(y0,H) ));
+		return node.hasEdgeBetween(getId(mod(x1,W), mod(y1,H)));
 	}
 	
 	protected void enlever()
@@ -118,16 +125,16 @@ abstract class Perso
 		switch (direction)
 		{
 			case PConstants.UP:
-				y--;
+				y=mod(y-1,H);
 				break;
 			case PConstants.DOWN:
-				y++;
+				y=mod(y+1,H);
 				break;
 			case PConstants.LEFT:
-				x--;
+				x=mod(x-1,W);
 				break;
 			case PConstants.RIGHT:
-				x++;
+				x=mod(x+1,W);
 				break;
 				default:break;
 		}

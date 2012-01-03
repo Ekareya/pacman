@@ -6,6 +6,21 @@ import java.util.*;
 
 public class ToolkitPa
 {	
+	public static int distMan(Node node, Node target)
+	{
+		if (node != null && target != null)
+		{
+			double xy1[] = nodePosition(node);
+			double xy2[] = nodePosition(target);
+			
+			int dx = (int) Math.abs(xy2[0] - xy1[0]);
+			int dy = (int) Math.abs(xy2[1] - xy1[1]);
+			
+			return dx + dy;
+		} else
+			return 0;
+	}
+	
 	public static Graph subGraph(Graph graph,String marker,Object object)
 	{
 		Graph h = new SingleGraph("sub_"+graph.getId());
@@ -169,7 +184,7 @@ public class ToolkitPa
 	 * @return
 	 * @see org.graphstream.algorithm.Toolkit#nodeName
 	 */
-	protected String nodeName(int x, int y)
+	public static String nodeName(int x, int y)
 	{
 		return Integer.toString(x) + "_" + Integer.toString(y);
 	}
