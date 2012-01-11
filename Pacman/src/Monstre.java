@@ -13,6 +13,7 @@ public class Monstre extends Perso
 	int			ia;
 	boolean		useSmallGraph	= false;
 	AStarPa		astar				= new AStarPa();
+	int			deadCount	;
 	
 	Monstre(PApplet parent, String nom)
 	{
@@ -43,6 +44,7 @@ public class Monstre extends Perso
 		astar.init(laby);
 		c = new Stack<Node>();
 		orienter();
+		deadCount= vitesse * deadTime;
 		
 	}
 	
@@ -62,25 +64,54 @@ public class Monstre extends Perso
 	
 	protected void paint()
 	{
-		String dir = "up";
-		switch (direction)
+		String imagename = "";
+		if (dead)
 		{
-			case PConstants.UP:
-				dir = "up";
-				break;
-			case PConstants.DOWN:
-				dir = "down";
-				break;
-			case PConstants.LEFT:
-				dir = "left";
-				break;
-			case PConstants.RIGHT:
-				dir = "right";
-				break;
+			String dir = "up";
+			switch (direction)
+			{
+				case PConstants.UP:
+					dir = "up";
+					break;
+				case PConstants.DOWN:
+					dir = "down";
+					break;
+				case PConstants.LEFT:
+					dir = "left";
+					break;
+				case PConstants.RIGHT:
+					dir = "right";
+					break;
+			}
+			imagename = "../data/mort" + dir + ".PNG";
+		} else if (hunted < 0)
+		{
+			int truc = (int) Math.abs(frame / (vitesse / 4)) % 2 + 1;
+			int truc1 = (int) Math.abs(frame / (vitesse / 2)) % 2 + 1;
+			imagename = "../data/malade" + Integer.toString(truc1) + Integer.toString(truc) + ".PNG";
+		} else
+		{
+			String dir = "up";
+			switch (direction)
+			{
+				case PConstants.UP:
+					dir = "up";
+					break;
+				case PConstants.DOWN:
+					dir = "down";
+					break;
+				case PConstants.LEFT:
+					dir = "left";
+					break;
+				case PConstants.RIGHT:
+					dir = "right";
+					break;
+			}
+			int truc = (int) Math.abs(frame / (vitesse / 4));
+			imagename = "../data/" + name + dir + Integer.toString((truc % 2) + 1) + ".PNG";
 		}
-		int truc = (int) Math.abs(frame / (vitesse / 4));
 		PImage b;
-		b = p.loadImage("../data/" + name + dir + ((truc % 2) + 1) + ".PNG");
+		b = p.loadImage(imagename);
 		p.fill(0);
 		p.image(b, PAS / 6, PAS / 6, 2 * PAS / 3, 2 * PAS / 3);
 		
@@ -90,10 +121,10 @@ public class Monstre extends Perso
 	{
 		if (frame == vitesse)
 		{
-			getNode().addAttribute("monstre","false");
+			getNode().addAttribute("monstre", "false");
 			switch (direction)
 			{
-				case PConstants.UP:					
+				case PConstants.UP:
 					haut();
 					break;
 				case PConstants.DOWN:
@@ -107,29 +138,44 @@ public class Monstre extends Perso
 					break;
 			}
 			orienter();
-			getNode().addAttribute("monstre","true");
+			getNode().addAttribute("monstre", "true");
 		} else
 			frame++;
+		if (dead)
+		{
+			deadCount--;
+			if (deadCount <= 0)
+			{
+				dead = false;
+				deadCount = vitesse * deadTime;
+			}
+		}
 		
 	}
 	
 	public void orienter()
 	{
 		double[] nextpos = null;
-		switch (ia)
+		if (hunted < 0 || dead)
+			nextpos = hunted();
+		else
 		{
-			case 1:
-				nextpos = welcomeToRandomLand();
-				break;
-			case 2:
-				nextpos = aStarIsBorn();
-				break;
-			case 3:
-				dijkstraction();
-				break;
-			case 4:
-				hunted();
-				break;
+			switch (ia)
+			
+			{
+				case 1:
+					nextpos = welcomeToRandomLand();
+					break;
+				case 2:
+					nextpos = aStarIsBorn();
+					break;
+			// case 3:
+			// dijkstraction();
+			// break;
+			// case 4:
+			// hunted();
+			// break;
+			}
 		}
 		
 		int x0 = (int) nextpos[0];
@@ -189,11 +235,34 @@ public class Monstre extends Perso
 		return nodePosition(c.pop());
 	}
 	
-	private void hunted()
-	{}
+	private double[] hunted()
+	{
+		int dist2Pac = astar.distMan(getNode(), pacNode);
+		if (c.size() > 1 && dist2Pac <= trackingDistance)
+		{
+			c = new Stack<Node>();
+		}
+		if (dist2Pac <= trackingDistance / 2)
+		{
+			Node nextNode = getNode();
+			int dist = 0;
+			for (Node node : getNeighbourSet(getNode()))
+			{
+				if (astar.distMan(node, pacNode) > dist)// dist ==0 evite que le
+																		// monstre // reste sur
+																		// place
+				{
+					nextNode = node;
+					dist = dist2Pac;
+				}
+			}
+			return nodePosition(nextNode);
+		} else
+			return welcomeToRandomLand();
+	}
 	
-	private void dijkstraction()
-	{}
+	// private void dijkstraction()
+	// {}
 	
 	private double[] aStarIsBorn()
 	{

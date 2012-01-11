@@ -10,9 +10,10 @@ abstract class Perso
 	int		y;
 	int		direction;
 	float		frame;
-	float		vitesse;
+	int		vitesse;
 	PApplet	p;
 	String	name;
+	public boolean	dead = false;
 	
 	// ------------------------
 	Perso(PApplet parent)
@@ -70,12 +71,13 @@ abstract class Perso
 	{
 		p.noStroke();
 		p.pushMatrix();
-		
-		if (getNode(getId()).getAttribute("gomme") == "true")
+		Node node = getNode(getId());
+		if (node.getAttribute("gomme") == "true")
 		{
 			p.translate(x * PAS + MARGE, y * PAS + MARGE);
 			p.fill(255);
-			p.ellipse(PAS / 2, PAS / 2, PAS / 4, PAS / 4);
+			int size=(node.getAttribute("superGomme") == "true")?PAS / 2:PAS / 4;
+			p.ellipse(PAS / 2, PAS / 2, size,size);
 			p.popMatrix();
 			p.pushMatrix();
 		}

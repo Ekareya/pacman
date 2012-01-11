@@ -48,7 +48,7 @@ public class Test extends PApplet
 		
 		for (Node node : laby)
 		{
-			node.addAttribute("ui.label", node.getId());
+			//node.addAttribute("ui.label", node.getId());
 			node.addAttribute("gomme", "true");
 			node.addAttribute("monstre", "false");
 			node.addAttribute("superGomme", "false");
@@ -62,7 +62,13 @@ public class Test extends PApplet
 		
 		for (int i = 0; i < 3; i++)
 		{	
-			
+			Node node = randomNode(laby);
+			if(node.getAttribute("superGomme")=="false")
+			{
+				node.addAttribute("superGomme","true");
+			}
+			else
+				i--;
 		}
 		
 		stroke(0, 200, 225);
@@ -96,11 +102,9 @@ public class Test extends PApplet
 				line2(x0, y0 + 1, x1 + 1, y1, 0);
 			}
 		}
-		int tunnelhor = 2;
-		for (int i = 0; i < tunnelhor; i++)
+
+		for (int i = 0; i < TUNNELHORI; i++)
 		{
-			try
-			{
 				int alea = (int) Math.floor(Math.random() * H);
 				
 				Edge tunnel = laby.addEdge(Integer.toString(2 * laby.getEdgeCount()), nodeName(0, alea), nodeName(W - 1, alea));
@@ -109,28 +113,19 @@ public class Test extends PApplet
 															// fantomes passent moins
 				line2(0, alea, 0, alea + 1, 0);
 				line2(W, alea, W, alea + 1, 0);
-			} catch (EdgeRejectedException e)
-			{
-				continue;
-			}
+			
 		}
 		
-		int tunnelvert = 1;
-		for (int i = 0; i < tunnelvert; i++)
+		
+		for (int i = 0; i < TUNNELVERT; i++)
 		{
 			int alea = (int) Math.floor(Math.random() * W);
-			try
-			{
 				Edge tunnel = laby.addEdge(Integer.toString(2 *laby.getEdgeCount()), nodeName(alea, 0), nodeName(alea,H-1));
 				tunnel.addAttribute("mur", "false");
 				tunnel.addAttribute("weight", 1);// augmenter si on veux que les
 															// fantomes ne passent pas
 				line2(alea, 0, alea + 1, 0,0);
 				line2(alea,H, alea+1, H, 0);
-			} catch (EdgeRejectedException e)
-			{
-				continue;
-			}
 		}
 		
 		for (Node node : laby)
@@ -140,7 +135,10 @@ public class Test extends PApplet
 				double[] xyz = nodePosition(node);
 				int x0 = (int) xyz[0];
 				int y0 = (int) xyz[1];
-				drawPill(x0, y0);
+				if(node.getAttribute("superGomme")=="true")
+					drawPill(x0,y0,true);
+				else
+					drawPill(x0, y0 , false);
 			}
 		}
 		fill(255);
@@ -155,8 +153,8 @@ public class Test extends PApplet
 		
 		int d = smallLaby.getEdgeCount();
 		edgeStyle(laby, "mur", "false", "fill-color:blue;size:5px;");
-		smallLaby.display(false);
-		laby.display(false);
+		//smallLaby.display(false);
+		//laby.display(false);
 		for (Node node : smallLaby)
 		{
 			int i = node.getInDegree();
@@ -200,16 +198,16 @@ public class Test extends PApplet
 		
 		pacman = new Pacman(this, "pacman");
 		pacNode = pacman.getNode();
-		blinky = new Monstre(this, "blinky", 2);
+		blinky = new Monstre(this, "blinky", 1);
 		pinky = new Monstre(this, "pinky", 2);
 		inky = new Monstre(this, "inky", 2);
 		clyde = new Monstre(this, "clyde", 2);
 		
 		perso.add(pacman);
 		perso.add(blinky);
-		perso.add(pinky);
-		perso.add(inky);
-		perso.add(clyde);
+//		perso.add(pinky);
+//		perso.add(inky);
+//		perso.add(clyde);
 		
 		for (Perso bidule : perso)
 		{
@@ -220,34 +218,33 @@ public class Test extends PApplet
 	int	i	= 0;
 	
 	public void draw()
-	{
+	{	
+
 		for (Perso bidule : perso)
 		{
 			bidule.enlever();
 		}
-		
+
 		for (Perso bidule : perso)
 		{
 			bidule.deplacer();
 		}
-		
+
 		for (Perso bidule : perso)
 		{
 			bidule.afficher();
 		}
-		
 		for (Perso bidule : perso)
 		{
 			if (bidule == pacman)
 				continue;
-			if (bidule.x == pacman.x && bidule.y == pacman.y)
-			{
-				noLoop();
-				break;
+			else if (bidule.x == pacman.x && bidule.y == pacman.y)
+			{	
+				bidule.dead=true;//c'est le monste qui meurt a chaque fois
 			}
 		}
 		
-		if (score > oldscore)
+/*		if (score > oldscore)
 		{
 			oldscore = score;
 			fill(0);
@@ -263,6 +260,12 @@ public class Test extends PApplet
 			text("Bravo!!! Maintenant t'as l'air malin, coincé dans un labyrinthe sans rien à manger...", MARGE / 2, 3 * MARGE / 4);
 			
 		}
+		*/
+		fill(0);
+		rect(0, 0, H * PAS, MARGE - 1);
+		fill(255);
+		text(Integer.toString(i), MARGE / 2, 3 * MARGE / 4);
+		i++;
 	}
 	
 	public void keyPressed()
@@ -279,10 +282,14 @@ public class Test extends PApplet
 	
 	public void drawPill(int x, int y)
 	{
+		drawPill(x,y,false);
+	}
+	public void drawPill(int x, int y , boolean big)
+	{
+		int size=(big)?PAS / 2:PAS / 4;
 		pushMatrix();
 		translate(x * PAS + MARGE, y * PAS + MARGE);
-		fill(255);
-		ellipse(PAS / 2, PAS / 2, PAS / 4, PAS / 4);
+		ellipse(PAS / 2, PAS / 2, size,size);
 		popMatrix();
 	}
 	

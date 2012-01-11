@@ -37,11 +37,19 @@ public class Pacman extends Perso
 				default: frame=vitesse;break;
 			}
 			pacNode=getNode();
-			if (getNode().getAttribute("gomme") == "true")
+
+			if (pacNode.getAttribute("gomme") == "true")
 			{
-				getNode().addAttribute("gomme", "false");
+				pacNode.addAttribute("gomme", "false");
+				if(pacNode.getAttribute("superGomme") == "true")
+				{
+					hunted=vitesse*-30;
+					pacNode.addAttribute("superGomme", "false");
+				}
 				score++;
+				
 			}
+			
 			if(nextDir<0)
 			{
 				direction=0;
@@ -51,7 +59,9 @@ public class Pacman extends Perso
 		{frame=vitesse;}
 		else
 			frame++;
-
+		
+		if(hunted<0)
+			hunted++;
 		
 	}
 	
