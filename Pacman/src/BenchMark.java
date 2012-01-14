@@ -1,3 +1,6 @@
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
+
 import org.graphstream.algorithm.AStar;
 import org.graphstream.algorithm.AStarPa;
 import org.graphstream.algorithm.Dijkstra;
@@ -25,49 +28,80 @@ public class BenchMark
 				return 1;
 			}
 		}
+		ThreadMXBean mx = ManagementFactory.getThreadMXBean();
 		
-		int j = 500 ;
-		int taille = 15;
-		Graph grille = rectGridGenerator(taille, taille);
+		int j = 10;
+		
+		
 		LabyGenerator gen = new LabyGenerator();
 		gen.setRemoveDeadEnd(1);
 		gen.setRemove4Cycle(true);//
 		gen.setPruning(true);
 		gen.setRemoveBottleNeck(true);
+		
+		for(int k=1;k<=10;k++)
+		{
+		int taille = 15*k;
+		
+		Graph grille = rectGridGenerator(taille, taille);
+
+		
 		Node start = null;
 		Node finish = null;
+	
 		AStarPa astarpa = new AStarPa();
 		AStar astar = new AStar();
 		astar.setCosts(new PacManCosts());
 		Dijkstra dijkstra = new Dijkstra();
+		
+		int paSize=0;
+		int asSize=0;
+		int diSize=0;
+		
+		long paTime=0;
+		long asTime=0;
+		long diTime=0;
 		
 		for (int i = 0; i < j; i++)
 		{
 			Graph laby = weight(grille);
 			gen.init(laby);
 			gen.compute();
+			
 			start = laby.getNode("0_0");
 			finish = laby.getNode(nodeName(taille - 1, taille - 1));
+			
+			paTime-=mx.getCurrentThreadCpuTime();
 			astarpa.reset();
 			astarpa.init(laby);
 			astarpa.setStart(start);
 			astarpa.setFinish(finish);
 			astarpa.compute();
-			int c = astarpa.getPath().size();
+			paSize += astarpa.getPath().size();
+			paTime+=mx.getCurrentThreadCpuTime();
+			
+			asTime-=mx.getCurrentThreadCpuTime();
 			astar.init(laby);
 			astar.compute(start.getId(), finish.getId());
-			int d = astar.getShortestPath().size();
+			asSize += astar.getShortestPath().size();
+			asTime+=mx.getCurrentThreadCpuTime();
+			
+			diTime-=mx.getCurrentThreadCpuTime();
 			dijkstra.init(laby);
 			dijkstra.setSource(start);
 			dijkstra.compute();
-			int e = dijkstra.getPath(finish).size();
-			System.out.println(c+"-"+d+"-"+e);
+			diSize += dijkstra.getPath(finish).size();
+			diTime+=mx.getCurrentThreadCpuTime();
 
 		}
+		
+		System.out.println("taille: "+taille);
+		System.out.println("astarPa: "+(paTime/j)+" - "+(paSize/j));
+		System.out.println("astar: "+(asTime/j)+" - "+(asSize/j));
+		System.out.println("dijkstra: "+(diTime/j)+" - "+(diSize/j));
+		System.out.println();
+		}
 	
-//	while(true)
-//		{}
-		int truc= 1;
 	}
 	
 }

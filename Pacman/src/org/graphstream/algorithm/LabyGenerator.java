@@ -8,6 +8,10 @@ import org.graphstream.graph.implementations.*;
 import java.util.*;
 
 @SuppressWarnings("unused")
+/*
+ * voir compteRenduTp2.pdf*
+ */
+
 public class LabyGenerator implements Algorithm
 {
 	
@@ -62,56 +66,7 @@ public class LabyGenerator implements Algorithm
 		subway = null;
 	}
 	
-	/**
-	 * creer un arbre couvrant de poid minimum a l'aide de l'algorithme de prim (
-	 * fonctionne pour n'importe quel graphe connexe)
-	 * enleve les culs de sac avec une proba de removeDeadEnd
-	 * puis s'occupe des cycles et enleve la plupart des noeuds maitres ( ceux
-	 * possedant bcp de cycle d'esclave ne sont detecté que si on fait tourner
-	 * l'algo plusieur fois)
-	 * la detection des 4-cycles utilise une heuristique pour un graphe grille et
-	 * possedant peu de 4-cycle collé les un aux autres et ne doit pas
-	 * fonctionner lorsque des 3-cycles sont present
-	 * l'heuristique demandant d'avoir exactement 2 arretes mur ce qui ne se
-	 * produit pas quand le 4cycle est immediatement entouré d'autre 4 cycle.ou
-	 * dans une configuration en etoile cependant
-	 * ses phenomenes sont assez rare du fait que l'on part d'un arbre couvrant
-	 * (donc acyclique)
-	 * heuristique des 4 cycles: prendre un sommet de degré 2, regarder la
-	 * reunions des voisins de ses voisins, si il y a un autre sommet que lui
-	 * même c'est que l'on a un cycle.
-	 * ensuite il suffit d'enlever une des arretes du cycles, puis verifier si il
-	 * y a creation de cul de sac, refuser selon la proba de removeDeadEnd,
-	 * si on n'a as put enlever une arrete rajouter une arrete a partir du sommet
-	 * selectionner vers l'exterieur et recommencer
-	 * ensuite on chercher les noeuds esclaves, l'heuristique utilisé ne
-	 * fonctionne pas avec des cul de sac d'ou la condition de removeDeadEnd a 1
-	 * de plus si on accepte de laisser des cul de sac dans le labyrinthe, un cul
-	 * de sac cyclique n'est pas très génant.
-	 * l'heuristique utiliser exploite encore le fait que l'on soit partit d'un
-	 * arbre couvrant donc avec bcp de node de degré 2
-	 * l'heuristique simplifie le graphe en enlevant tout les sommet de degre2
-	 * tout en gardant les connections. donc les cul de sac cyclique se
-	 * retrouveront sous la forme de cul de sac,
-	 * le noeud maitre etant le noeud directement relié au noeud resté du cyle
-	 * une fois le noeud maitre et un noeud du cycle obtenus il est facile de
-	 * recuperer tout les noeuds du cycle. et il suffit de rajouter une arretes
-	 * depuis un somment du cycle
-	 * vers un sommet non compris dans le cycle (et non compris dans les noeuds
-	 * qui relie le maitre au cycle.
-	 * 
-	 * le labyrinthe obtenus avec l'algorithme de prim donne un très bon
-	 * labyrinthe cependant j'avais besoin d'un peu plus de modularité pour
-	 * adapter le labyrinthe
-	 * au td d'I.A.(pacman) et j'avais besoin de rendre le labyrinthe jouable.
-	 * donc pas de noeud maitre et pas de 4-cycles ( car moche )
-	 * de plus le graphe utiliser pour detecter les noeuds maitre me seras utile
-	 * pour bouger les fantomes ( grapheplus petit que le graphe complet donc
-	 * calcul plus rapide)
-	 * 
-	 * 
-	 * 
-	 */
+	
 	public void compute()
 	{
 		

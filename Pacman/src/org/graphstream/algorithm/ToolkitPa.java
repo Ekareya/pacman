@@ -6,6 +6,13 @@ import java.util.*;
 
 public class ToolkitPa
 {	
+	
+	/**
+	 * retourne la distance de manhatan entre les deux sommets fournis en paramètre
+	 * @param node
+	 * @param target
+	 * @return
+	 */
 	public static int distMan(Node node, Node target)
 	{
 		if (node != null && target != null)
@@ -20,7 +27,13 @@ public class ToolkitPa
 		} else
 			return 0;
 	}
-	
+	/**
+	 * renvoie un nouveau graphe composé de tout les sommets avec les aretes dont l'attribut marker correspond a object
+	 * @param graph
+	 * @param marker
+	 * @param object
+	 * @return
+	 */
 	public static Graph subGraph(Graph graph,String marker,Object object)
 	{
 		Graph h = new SingleGraph("sub_"+graph.getId());
@@ -40,7 +53,13 @@ public class ToolkitPa
 		}
 		return h;
 	}
-	
+	/**
+	 * ajoute un style a toute les aretes dont l'attribut marker vaut value
+	 * @param g
+	 * @param marker
+	 * @param value
+	 * @param style
+	 */
 	public static void edgeStyle(Graph g,String marker,Object value,String style)
 	{
 		for(Edge edge: g.getEachEdge())
@@ -50,6 +69,11 @@ public class ToolkitPa
 		}
 	}
 	
+	/**
+	 * ajoute des poids aléatoire à toutes les aretes d'un graphe
+	 * @param g
+	 * @return
+	 */
 	public static Graph weight(Graph g)
 	{
 		for(Edge edge:g.getEachEdge())
@@ -58,7 +82,7 @@ public class ToolkitPa
 		}
 		return g;
 	}
-	
+
 	public static Graph rectGridGenerator(int size)
 	{
 		return rectGridGenerator(size, size, 0);
@@ -70,7 +94,13 @@ public class ToolkitPa
 	}
 	
 
-	
+	/**
+	 * genere un graphe "grille" en 2 ou 3 dimensions
+	 * @param height
+	 * @param width
+	 * @param deep
+	 * @return
+	 */
 	public static Graph rectGridGenerator(int height, int width, int deep)
 	{
 		Graph gx = new SingleGraph("x", false, true);
@@ -190,7 +220,7 @@ public class ToolkitPa
 	}
 	
 	/**
-	 * 
+	 * recupère le nombre d'arrete ayant l'attribut marker valant object qui sorte de node
 	 * @param node
 	 * @param marker
 	 * @param object
@@ -209,7 +239,7 @@ public class ToolkitPa
 	}
 	
 	/**
-	 * 
+	 * recupère la liste des aretes sortante de node dont l'attribut marker vaut object
 	 * @param node
 	 * @param marker
 	 * @param object
@@ -228,7 +258,7 @@ public class ToolkitPa
 	}
 	
 	/**
-	 * 
+	 * recupère l'ensemble des noeuds voisin de node
 	 * @param node
 	 * @return
 	 */
@@ -242,6 +272,11 @@ public class ToolkitPa
 		return neighbour;
 		
 	}
+	/**
+	 * recupère la liste des noeuds voisin de node
+	 * @param node
+	 * @return
+	 */
 	public static ArrayList<Node> getNeighbourList(Node node)
 	{
 		ArrayList<Node> neighbour = new ArrayList<Node>();
@@ -253,7 +288,7 @@ public class ToolkitPa
 		
 	}
 	/**
-	 * 
+	 * recupère la liste des noeuds voisin de node connecté a l'aide d'un arete dont l'attribut marker vaut object
 	 * @param node
 	 * @param marker
 	 * @param object
@@ -272,6 +307,7 @@ public class ToolkitPa
 	}
 	
 	/**
+	 * 
 	 * @see org.graphstream.algorithm.Toolkit#communities
 	 * @param graph
 	 * @param marker

@@ -113,13 +113,27 @@ public class AStarPa implements Algorithm
 			return 0;
 	}
 	
+	public int distEuc(Node node, Node target)
+	{
+		if (node != null && target != null)
+		{
+			double xy1[] = nodePosition(node);
+			double xy2[] = nodePosition(target);
+			
+			int dx = (int) Math.abs(xy2[0] - xy1[0]);
+			int dy = (int) Math.abs(xy2[1] - xy1[1]);
+			
+			return dx * dx + dy * dy;
+		} else
+			return 0;
+	}
+	
 	public void compute()
 	{
 		best = distMan(start, finish);
 		open.put(start, new BigNode(start, new BigNode(null, null, 0, 0), 0, best));
 		
 		insertIntoOpen2(best, start);
-		
 		while (!open.isEmpty())
 		{
 			Node bestNode = getBest();
@@ -133,10 +147,8 @@ public class AStarPa implements Algorithm
 			for (Edge edge : bestNode.getEachEdge())
 			{
 				Node opNode = edge.getOpposite(bestNode);
-				int a=0;
-				try{a = cost(opNode) + open.get(bestNode).a;}
-				catch(NullPointerException e){ 
-					continue;}//bof bof:p
+				int a = 0;
+				a = cost(opNode) + open.get(bestNode).a;
 				
 				int z = distMan(opNode, finish);
 				int m = a + z;
@@ -148,9 +160,9 @@ public class AStarPa implements Algorithm
 				{
 					if (open.get(opNode).m > m)
 					{
-						open.get(opNode).update(parent, m, a);
 						open2.get(open.get(opNode).m).remove(opNode);
-						insertIntoOpen2(m,opNode);
+						open.get(opNode).update(parent, m, a);
+						insertIntoOpen2(m, opNode);
 					} else
 					{
 						continue;
@@ -162,7 +174,7 @@ public class AStarPa implements Algorithm
 				}
 				best = (best < m) ? best : m;
 			}
-			open2.get(best).remove(bestNode);
+			open2.get(open.get(bestNode).m).remove(bestNode);
 			close.put(bestNode, open.get(bestNode));
 			open.remove(bestNode);
 			
@@ -180,26 +192,24 @@ public class AStarPa implements Algorithm
 		{
 			node.addAttribute("ui.class", monsterName);
 			edge = node.getEdgeBetween(nextNode);
-			try{path.push(node, edge);}
-			catch(NullPointerException e){ 
-				continue;}//bof bof :p)
+			path.push(node, edge);
 			node = nextNode;
-			try{nextNode = close.get(node).parent.node;}
-			catch(NullPointerException e){ 
-				continue;}//bof bof :p)
+			nextNode = close.get(node).parent.node;
 		}
 		
 	}
+	
 	private int cost(Node node)
 	{
-		return (node.getAttribute("monstre")=="true")?10:1;
+		return (node.getAttribute("monstre") == "true") ? 10 : 1;
 	}
 	
+	@SuppressWarnings("unused")
 	private int cost(Edge edge)
 	{
-		//Object att = edge.getAttribute(weight);
+		// Object att = edge.getAttribute(weight);
 		
-		//return (Integer) ((att != null) ? att : 1);
+		// return (Integer) ((att != null) ? att : 1);
 		return 1;
 	}
 	
@@ -217,7 +227,6 @@ public class AStarPa implements Algorithm
 				result = truc.next();
 				
 			}
-			
 		}
 		return result;
 	}

@@ -6,14 +6,14 @@ import processing.core.*;
 abstract class Perso
 {
 	// -------- attribut
-	int		x;
-	int		y;
-	int		direction;
-	float		frame;
-	int		vitesse;
-	PApplet	p;
-	String	name;
-	public boolean	dead = false;
+	int				x;
+	int				y;
+	int				direction;
+	float				frame;
+	int				vitesse;
+	PApplet			p;
+	String			name;
+	public boolean	dead	= false;
 	
 	// ------------------------
 	Perso(PApplet parent)
@@ -46,7 +46,9 @@ abstract class Perso
 	}
 	
 	abstract void deplacer();
+	
 	public abstract void orienter();
+	
 	protected void node2coord(Node node)
 	{
 		double xy0[] = nodePosition(node);
@@ -54,17 +56,18 @@ abstract class Perso
 		y = (int) xy0[1];
 	}
 	
-	public int mod(int x0,int y0)
-	{	y0=Math.abs(y0);
-		int result=x0%y0;
-		return(result>=0)?result:y0+result;
+	public int mod(int x0, int y0)
+	{
+		y0 = Math.abs(y0);
+		int result = x0 % y0;
+		return (result >= 0) ? result : y0 + result;
 	}
 	
 	protected boolean verif(int x0, int y0, int x1, int y1)
-	{	
+	{
 		
-		Node node = getNode(getId(mod(x0,W),mod(y0,H) ));
-		return node.hasEdgeBetween(getId(mod(x1,W), mod(y1,H)));
+		Node node = getNode(getId(mod(x0, W), mod(y0, H)));
+		return node.hasEdgeBetween(getId(mod(x1, W), mod(y1, H)));
 	}
 	
 	protected void enlever()
@@ -76,8 +79,8 @@ abstract class Perso
 		{
 			p.translate(x * PAS + MARGE, y * PAS + MARGE);
 			p.fill(255);
-			int size=(node.getAttribute("superGomme") == "true")?PAS / 2:PAS / 4;
-			p.ellipse(PAS / 2, PAS / 2, size,size);
+			int size = (node.getAttribute("superGomme") == "true") ? PAS / 2 : PAS / 4;
+			p.ellipse(PAS / 2, PAS / 2, size, size);
 			p.popMatrix();
 			p.pushMatrix();
 		}
@@ -86,26 +89,39 @@ abstract class Perso
 		p.popMatrix();
 	}
 	
+	public float[] getRealCoord()
+	{
+		float[] coord=new float[2];
+	switch(direction)
+	{
+		case PConstants.UP:
+			coord[0]=x * PAS + MARGE;
+			coord[1]= (y - (frame / vitesse)) * PAS + MARGE;	
+			break;
+		case PConstants.DOWN:
+			coord[0]=x * PAS + MARGE;
+			coord[1]= (y + (frame / vitesse)) * PAS + MARGE;
+			break;
+		case PConstants.LEFT:
+			coord[0]=(x - (frame / vitesse)) * PAS + MARGE;
+			coord[1]= y * PAS + MARGE;
+			break;
+		case PConstants.RIGHT:
+			coord[0]=(x + (frame / vitesse)) * PAS + MARGE;
+			coord[1]=  y * PAS + MARGE;
+			break;
+		default:
+			coord[0]=x * PAS + MARGE;
+			coord[1]= y * PAS + MARGE;
+			break;
+	}
+	return coord;
+}
+	
 	protected void translate()
 	{
-		switch (direction)
-		{
-			case PConstants.UP:
-				p.translate(x * PAS + MARGE, (y - (frame / vitesse)) * PAS + MARGE);
-				break;
-			case PConstants.DOWN:
-				p.translate(x * PAS + MARGE, (y + (frame / vitesse)) * PAS + MARGE);
-				break;
-			case PConstants.LEFT:
-				p.translate((x - (frame / vitesse)) * PAS + MARGE, y * PAS + MARGE);
-				break;
-			case PConstants.RIGHT:
-				p.translate((x + (frame / vitesse)) * PAS + MARGE, y * PAS + MARGE);
-				break;
-			default:
-				p.translate(x * PAS + MARGE, y * PAS + MARGE);
-				break;
-		}
+		float[] coord =getRealCoord();
+		p.translate(coord[0],coord[1]);
 	}
 	
 	protected void afficher()
@@ -127,27 +143,31 @@ abstract class Perso
 		switch (direction)
 		{
 			case PConstants.UP:
-				y=mod(y-1,H);
+				y = mod(y - 1, H);
 				break;
 			case PConstants.DOWN:
-				y=mod(y+1,H);
+				y = mod(y + 1, H);
 				break;
 			case PConstants.LEFT:
-				x=mod(x-1,W);
+				x = mod(x - 1, W);
 				break;
 			case PConstants.RIGHT:
-				x=mod(x+1,W);
+				x = mod(x + 1, W);
 				break;
-				default:break;
+			default:
+				break;
 		}
-		direction=0;
+		direction = 0;
 		frame = 0;
+
 	}
+	
 	protected void haut()
-	{	move();
+	{
+		move();
 		if (verif(x, y, x, y - 1))
 		{
-			direction=PConstants.UP;
+			direction = PConstants.UP;
 		}
 	}
 	
@@ -155,27 +175,31 @@ abstract class Perso
 	{
 		return null;
 	}
+	
 	protected void bas()
-	{	move();
+	{
+		move();
 		if (verif(x, y, x, y + 1))
 		{
-			direction=PConstants.DOWN;
+			direction = PConstants.DOWN;
 		}
 	}
 	
 	protected void droite()
-	{	move();
+	{
+		move();
 		if (verif(x, y, x + 1, y))
 		{
-			direction=PConstants.RIGHT;
+			direction = PConstants.RIGHT;
 		}
 	}
 	
 	protected void gauche()
-	{	move();
+	{
+		move();
 		if (verif(x, y, x - 1, y))
 		{
-			direction=PConstants.LEFT;
+			direction = PConstants.LEFT;
 		}
 	}
 	

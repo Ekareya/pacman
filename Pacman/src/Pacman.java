@@ -8,7 +8,7 @@ public class Pacman extends Perso
 	Pacman(PApplet parent,String nom)
 	{
 		super(parent);
-		vitesse = 15;
+		vitesse = PACMANSPEED;
 		name=nom;
 	}
 	

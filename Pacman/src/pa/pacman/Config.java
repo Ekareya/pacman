@@ -1,25 +1,29 @@
 package pa.pacman;
 
-import java.util.Random;
-
 import org.graphstream.graph.*;
 
 public final class Config
 {
+//option graphique
+	public static final int	PAS	= 40;//nombre de pixel par case
+	public static final int	MARGE	= 50;//marge autour du plateau de jeu, éviter d'avoir MARGE<PAS
+//option du plateau de jeu
+	public static final int	H		= 15;//nombre de case verticale
+	public static final int W		= 10;//nombre de case horizontale
+	public static final int TUNNELHORI = 2;//nombre max de tunnel horizontal
+	public static final int TUNNELVERT = 1;//nombre max de tunnel vertical
+//option du jeu
+	public static final boolean IMMORTALITY = false;//tricheur :p
+	public static final int trackingDistance=15;//champ de vision des monstre
+	public static final int deadTime=20;//temps durant lequel les monstres restent mort
+	public static final int PACMANSPEED=18;//vitesse de pacman en nombre d'apelle de la fonction draw()
+	public static final int MONSTERSPEED=24;//vitesse des monstre ....
+	public static int life=1;//nombre de vie de pacman
 
-	public static final int	H		= 15;
-	public static final int W		= 10;
-	public static final int TUNNELHORI = 2;
-	public static final int TUNNELVERT = 1;
-	public static final int	PAS	= 40;
-	public static final int	MARGE	= 50;
-	public static Graph laby = null;
-	public static Graph smallLaby=null;
+//variable globale
+	public static Graph laby = null;//le graphe du labyrinthe
+	public static Graph smallLaby=null;//le graphe simplifié du labyrinthe (utilisation non implementé)
+	public static Node pacNode=null;//le noeud ou se trouve pacman actuellement
+	public static int hunted = 0;//compteur pour les supergommes
 	public static int score =0;
-	public static Node pacNode=null;
-	public static int trackingDistance=10;
-	public static Random random = new Random(); 
-	public static int hunted = 0;
-	public static int deadTime=20;
-
 }

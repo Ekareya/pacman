@@ -1,3 +1,4 @@
+import java.util.EmptyStackException;
 import java.util.Stack;
 
 import org.graphstream.graph.*;
@@ -13,7 +14,8 @@ public class Monstre extends Perso
 	int			ia;
 	boolean		useSmallGraph	= false;
 	AStarPa		astar				= new AStarPa();
-	int			deadCount	;
+	int			deadCount;
+	boolean		uTurn				= false;
 	
 	Monstre(PApplet parent, String nom)
 	{
@@ -36,7 +38,7 @@ public class Monstre extends Perso
 			x = (int) p.random(W - 1);
 			y = (int) p.random(H - 1);
 		}
-		vitesse = 22;
+		vitesse = MONSTERSPEED;
 		ia = comportement;
 		direction = 0;
 		frame = frame2;
@@ -44,7 +46,7 @@ public class Monstre extends Perso
 		astar.init(laby);
 		c = new Stack<Node>();
 		orienter();
-		deadCount= vitesse * deadTime;
+		deadCount = vitesse * deadTime;
 		
 	}
 	
@@ -60,61 +62,6 @@ public class Monstre extends Perso
 		b = p.loadImage("../data/black1.PNG");
 		p.fill(0);
 		p.image(b, PAS / 6, PAS / 6, 2 * PAS / 3, 2 * PAS / 3);
-	}
-	
-	protected void paint()
-	{
-		String imagename = "";
-		if (dead)
-		{
-			String dir = "up";
-			switch (direction)
-			{
-				case PConstants.UP:
-					dir = "up";
-					break;
-				case PConstants.DOWN:
-					dir = "down";
-					break;
-				case PConstants.LEFT:
-					dir = "left";
-					break;
-				case PConstants.RIGHT:
-					dir = "right";
-					break;
-			}
-			imagename = "../data/mort" + dir + ".PNG";
-		} else if (hunted < 0)
-		{
-			int truc = (int) Math.abs(frame / (vitesse / 4)) % 2 + 1;
-			int truc1 = (int) Math.abs(frame / (vitesse / 2)) % 2 + 1;
-			imagename = "../data/malade" + Integer.toString(truc1) + Integer.toString(truc) + ".PNG";
-		} else
-		{
-			String dir = "up";
-			switch (direction)
-			{
-				case PConstants.UP:
-					dir = "up";
-					break;
-				case PConstants.DOWN:
-					dir = "down";
-					break;
-				case PConstants.LEFT:
-					dir = "left";
-					break;
-				case PConstants.RIGHT:
-					dir = "right";
-					break;
-			}
-			int truc = (int) Math.abs(frame / (vitesse / 4));
-			imagename = "../data/" + name + dir + Integer.toString((truc % 2) + 1) + ".PNG";
-		}
-		PImage b;
-		b = p.loadImage(imagename);
-		p.fill(0);
-		p.image(b, PAS / 6, PAS / 6, 2 * PAS / 3, 2 * PAS / 3);
-		
 	}
 	
 	public void deplacer()
@@ -138,7 +85,11 @@ public class Monstre extends Perso
 					break;
 			}
 			orienter();
-			getNode().addAttribute("monstre", "true");
+			if (getNode().getAttribute("monstre") == "true")
+			{
+				uTurn = true;
+			} else
+				getNode().addAttribute("monstre", "true");
 		} else
 			frame++;
 		if (dead)
@@ -216,12 +167,12 @@ public class Monstre extends Perso
 	
 	private double[] welcomeToRandomLand()
 	{
-		if (c.size() < 1)
+		if (c.size() < 1 || distMan(getNode(), pacNode) < 1)
 		{
 			astar.reset();
 			astar.setStart(getNode());
 			Node finish = getNode();
-			while (astar.distMan(finish, getNode()) <= 4)
+			while (distMan(finish, getNode()) <= 4)
 			{
 				finish = randomNode(laby);
 				astar.setFinish(finish);
@@ -237,18 +188,18 @@ public class Monstre extends Perso
 	
 	private double[] hunted()
 	{
-		int dist2Pac = astar.distMan(getNode(), pacNode);
+		int dist2Pac = distMan(getNode(), pacNode);
 		if (c.size() > 1 && dist2Pac <= trackingDistance)
 		{
 			c = new Stack<Node>();
 		}
-		if (dist2Pac <= trackingDistance / 2)
+		if (dist2Pac <= trackingDistance)
 		{
 			Node nextNode = getNode();
 			int dist = 0;
 			for (Node node : getNeighbourSet(getNode()))
 			{
-				if (astar.distMan(node, pacNode) > dist)// dist ==0 evite que le
+				if (distMan(node, pacNode) > dist)// dist ==0 evite que le
 																		// monstre // reste sur
 																		// place
 				{
@@ -266,9 +217,9 @@ public class Monstre extends Perso
 	
 	private double[] aStarIsBorn()
 	{
-		if (astar.distMan(getNode(), pacNode) <= trackingDistance)
+		if (distMan(getNode(), pacNode) <= trackingDistance)
 		{
-			if (c.size() < 1 || (random.nextBoolean() && distMan(getNode(), pacNode) < distMan(c.peek(), pacNode)))
+			if (c.size() < 1 || distMan(getNode(), pacNode) < distMan(c.peek(), pacNode))
 			{
 				astar.reset();
 				astar.setStart(getNode());
@@ -277,10 +228,90 @@ public class Monstre extends Perso
 				c = astar.getPath();
 				c.pop();
 			}
-			c.peek().addAttribute("ui.class", "notinpath");
-			return nodePosition(c.pop());
+			
+			try
+			{
+				Node next = c.peek();
+				if(uTurn && next.getDegree()>2)
+				{
+					uTurn=false;
+					if(next.getAttribute("monstre")=="false")
+					{
+						next.addAttribute("monstre","true");
+						astar.reset();
+						astar.setStart(getNode());
+						astar.setFinish(pacNode);astar.compute();
+						c = astar.getPath();
+						c.pop();
+						next.addAttribute("monstre","false");
+					}
+				}
+				
+				c.peek().addAttribute("ui.class", "notinpath");
+					
+				return nodePosition(c.pop());
+			}
+			// arrive parfois quand le monstre est sur la même case que pacman
+			catch (EmptyStackException e)
+			{
+				return welcomeToRandomLand();
+			}
 		} else
 			return welcomeToRandomLand();
 	}
 	
+	protected void paint()
+	{
+		String imagename = "";
+		if (dead)
+		{
+			String dir = "up";
+			switch (direction)
+			{
+				case PConstants.UP:
+					dir = "up";
+					break;
+				case PConstants.DOWN:
+					dir = "down";
+					break;
+				case PConstants.LEFT:
+					dir = "left";
+					break;
+				case PConstants.RIGHT:
+					dir = "right";
+					break;
+			}
+			imagename = "../data/mort" + dir + ".PNG";
+		} else if (hunted < 0)
+		{
+			int truc = (int) Math.abs(frame / (vitesse / 4)) % 2 + 1;
+			int truc1 = (int) Math.abs(frame / (vitesse / 2)) % 2 + 1;
+			imagename = "../data/malade" + Integer.toString(truc1) + Integer.toString(truc) + ".PNG";
+		} else
+		{
+			String dir = "up";
+			switch (direction)
+			{
+				case PConstants.UP:
+					dir = "up";
+					break;
+				case PConstants.DOWN:
+					dir = "down";
+					break;
+				case PConstants.LEFT:
+					dir = "left";
+					break;
+				case PConstants.RIGHT:
+					dir = "right";
+					break;
+			}
+			int truc = (int) Math.abs(frame / (vitesse / 4));
+			imagename = "../data/" + name + dir + Integer.toString((truc % 2) + 1) + ".PNG";
+		}
+		PImage b;
+		b = p.loadImage(imagename);
+		p.fill(0);
+		p.image(b, PAS / 6, PAS / 6, 2 * PAS / 3, 2 * PAS / 3);
+		
+	}
 }
