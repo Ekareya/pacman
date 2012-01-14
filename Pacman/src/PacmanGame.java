@@ -63,7 +63,7 @@ public class PacmanGame extends PApplet
 			edge.addAttribute("weight", 1);
 		}
 		
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < SUPERGOMME; i++)
 		{
 			Node node = randomNode(laby);
 			if (node.getAttribute("superGomme") == "false")
@@ -78,26 +78,25 @@ public class PacmanGame extends PApplet
 			int alea = (int) Math.floor(Math.random() * H);
 			
 			try
-			{Edge tunnel = laby.addEdge(Integer.toString(2 * laby.getEdgeCount()), nodeName(0, alea), nodeName(W - 1, alea));
-			tunnel.addAttribute("mur", "false");
-			tunnel.addAttribute("weight", 1);// augmenter si on veux que les
-														// fantomes passent moins
-			}
-			catch(EdgeRejectedException e)
+			{
+				Edge tunnel = laby.addEdge(Integer.toString(2 * laby.getEdgeCount()), nodeName(0, alea), nodeName(W - 1, alea));
+				tunnel.addAttribute("mur", "false");
+				tunnel.addAttribute("weight", 1);// augmenter si on veux que les
+															// fantomes passent moins
+			} catch (EdgeRejectedException e)
 			{}
 		}
 		
 		for (int i = 0; i < TUNNELVERT; i++)
-		{	
+		{
 			try
 			{
-			int alea = (int) Math.floor(Math.random() * W);
-			Edge tunnel = laby.addEdge(Integer.toString(2 * laby.getEdgeCount()), nodeName(alea, 0), nodeName(alea, H - 1));
-			tunnel.addAttribute("mur", "false");
-			tunnel.addAttribute("weight", 1);// augmenter si on veux que les
-														// fantomes passent moins
-			}
-			catch(EdgeRejectedException e)
+				int alea = (int) Math.floor(Math.random() * W);
+				Edge tunnel = laby.addEdge(Integer.toString(2 * laby.getEdgeCount()), nodeName(alea, 0), nodeName(alea, H - 1));
+				tunnel.addAttribute("mur", "false");
+				tunnel.addAttribute("weight", 1);// augmenter si on veux que les
+															// fantomes passent moins
+			} catch (EdgeRejectedException e)
 			{}
 			
 		}
@@ -117,57 +116,54 @@ public class PacmanGame extends PApplet
 		}
 		text(Integer.toString(score), 10, 15);
 		
-		/*
-		 * smallLaby = subGraph(laby, "mur", "false");
-		 * for (Edge edge : smallLaby.getEachEdge())
-		 * {
-		 * edge.addAttribute("weight", 1);
-		 * }
-		 * int d = smallLaby.getEdgeCount();
-		 * edgeStyle(laby, "mur", "false", "fill-color:blue;size:5px;");
-		 * // smallLaby.display(false);
-		 * // laby.display(false);
-		 * for (Node node : smallLaby)
-		 * {
-		 * int i = node.getInDegree();
-		 * if (i == 2)
-		 * {
-		 * ArrayList<Node> temp = getNeighbourList(node);
-		 * Edge edge0 = node.getEdgeBetween(temp.get(0));
-		 * Edge edge1 = node.getEdgeBetween(temp.get(1));
-		 * if (!temp.get(0).hasEdgeBetween(temp.get(1)))// verif pour garder un
-		 * // graphe simple
-		 * {
-		 * Edge edge = smallLaby.addEdge(Integer.toString(d), temp.get(0),
-		 * temp.get(1));
-		 * d++;
-		 * int poid0 = (Integer) edge0.getAttribute("weight");
-		 * int poid1 = (Integer) edge1.getAttribute("weight");
-		 * edge.addAttribute("weight", poid0 + poid1);
-		 * edge.addAttribute("ui.label", poid0 + poid1);
-		 * } else
-		 * {
-		 * Edge edge = temp.get(0).getEdgeBetween(temp.get(1));
-		 * int poid = (Integer) edge0.getAttribute("weight") + (Integer)
-		 * edge1.getAttribute("weight");
-		 * if (poid < (Integer) edge.getAttribute("weight"))
-		 * {
-		 * edge.addAttribute("weight", poid);
-		 * edge.addAttribute("ui.label", poid);
-		 * }
-		 * }
-		 * smallLaby.removeEdge(edge0);
-		 * smallLaby.removeEdge(edge1);
-		 * }
-		 * }
-		 * for (Node node : smallLaby)
-		 * {
-		 * if (node.getInDegree() == 0)
-		 * node.addAttribute("ui.style", "size:0px;");
-		 * else
-		 * node.addAttribute("ui.label", node.getId());
-		 * }
-		 */
+//		smallLaby = subGraph(laby, "mur", "false");
+//		for (Edge edge : smallLaby.getEachEdge())
+//		{
+//			edge.addAttribute("weight", 1);
+//		}
+//		int d = smallLaby.getEdgeCount();
+//		edgeStyle(laby, "mur", "false", "fill-color:blue;size:5px;");
+//		smallLaby.display(false);
+//		laby.display(false);
+//		for (Node node : smallLaby)
+//		{
+//			int i = node.getInDegree();
+//			if (i == 2)
+//			{
+//				ArrayList<Node> temp = getNeighbourList(node);
+//				Edge edge0 = node.getEdgeBetween(temp.get(0));
+//				Edge edge1 = node.getEdgeBetween(temp.get(1));
+//				if (!temp.get(0).hasEdgeBetween(temp.get(1)))// verif pour garder un
+//				// graphe simple
+//				{
+//					Edge edge = smallLaby.addEdge(Integer.toString(d), temp.get(0), temp.get(1));
+//					d++;
+//					int poid0 = (Integer) edge0.getAttribute("weight");
+//					int poid1 = (Integer) edge1.getAttribute("weight");
+//					edge.addAttribute("weight", poid0 + poid1);
+//					edge.addAttribute("ui.label", poid0 + poid1);
+//				} else
+//				{
+//					Edge edge = temp.get(0).getEdgeBetween(temp.get(1));
+//					int poid = (Integer) edge0.getAttribute("weight") + (Integer) edge1.getAttribute("weight");
+//					if (poid < (Integer) edge.getAttribute("weight"))
+//					{
+//						edge.addAttribute("weight", poid);
+//						edge.addAttribute("ui.label", poid);
+//					}
+//				}
+//				smallLaby.removeEdge(edge0);
+//				smallLaby.removeEdge(edge1);
+//			}
+//		}
+//		for (Node node : smallLaby)
+//		{
+//			if (node.getInDegree() == 0)
+//				node.addAttribute("ui.style", "size:0px;");
+//			else
+//				node.addAttribute("ui.label", node.getId());
+//		}
+		
 		for (Node node : laby)
 		{
 			double xy0[] = nodePosition(node);
@@ -233,14 +229,13 @@ public class PacmanGame extends PApplet
 				line2(x, y + 1, x + 1, y + 1, 0);
 			}
 			
-			
 		}
 		pacman = new Pacman(this, "pacman");
 		pacNode = pacman.getNode();
-		blinky = new Monstre(this, "blinky", 2,0);
-		pinky = new Monstre(this, "pinky", 2,6);
-		inky = new Monstre(this, "inky", 2,12);
-		clyde = new Monstre(this, "clyde", 2,18);
+		blinky = new Monstre(this, "blinky", 2, 0);
+		pinky = new Monstre(this, "pinky", 2, 6);
+		inky = new Monstre(this, "inky", 2, 12);
+		clyde = new Monstre(this, "clyde", 2, 18);
 		
 		perso.add(pacman);
 		perso.add(blinky);
@@ -277,24 +272,47 @@ public class PacmanGame extends PApplet
 		
 		for (Perso bidule : perso)
 		{
-			if (bidule == pacman)
+			if (bidule.name == "pacman")
 				continue;
 			else
 			{
 				float[] bidCoord = bidule.getRealCoord();
-				float truc = Math.abs(bidCoord[0] - pacCoord[0])+Math.abs(bidCoord[1] - pacCoord[1]);
+				float truc = Math.abs(bidCoord[0] - pacCoord[0]) + Math.abs(bidCoord[1] - pacCoord[1]);
 				if (truc <= PAS / 3)
 				{
 					if (hunted < 0)
 						bidule.dead = true;
 					else
+					{
+						life--;
+						if (life >= 1)
 						{
-						pacman.dead = true;
+							
+							for (Perso bidule2 : perso)
+							{
+								bidule2.enlever();
+							}
+							perso = new HashSet<Perso>();
+							pacman = new Pacman(this, "pacman");
+							pacNode = pacman.getNode();
+							blinky = new Monstre(this, "blinky", 2, 0);
+							pinky = new Monstre(this, "pinky", 2, 6);
+							inky = new Monstre(this, "inky", 2, 12);
+							clyde = new Monstre(this, "clyde", 2, 18);
+							
+							perso.add(pacman);
+							perso.add(blinky);
+							perso.add(pinky);
+							perso.add(inky);
+							perso.add(clyde);
+						} 
+						else
+							pacman.dead = true;
 						fill(0);
 						rect(0, 0, H * PAS, MARGE - 3);
 						fill(255);
-						text(bidule.name+" got you", MARGE / 2, 3 * MARGE / 4);
-						}
+						text(bidule.name + " got you", MARGE / 2, 3 * MARGE / 4);
+					}
 				}
 			}
 		}
@@ -308,15 +326,14 @@ public class PacmanGame extends PApplet
 				fill(255);
 				text(Integer.toString(score), MARGE / 2, 3 * MARGE / 4);
 			}
-			if (score == H * W )
+			if (score == H * W)
 			{
 				fill(0);
 				rect(0, 0, H * PAS, MARGE - 3);
 				fill(255);
 				text("Bravo!!! Maintenant t'as l'air malin, coincé dans un labyrinthe sans rien à manger...", MARGE / 2, 3 * MARGE / 4);
 			}
-		}
-		else
+		} else
 		{
 			noLoop();
 			

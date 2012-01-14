@@ -1,7 +1,7 @@
 package org.graphstream.algorithm;
 
 import static org.graphstream.ui.graphicGraph.GraphPosLengthUtils.nodePosition;
-
+import static pa.pacman.Config.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -128,6 +128,21 @@ public class AStarPa implements Algorithm
 			return 0;
 	}
 	
+	private int cost(Node node)
+	{
+		return (node.getAttribute("monstre") == "true") ? MONSTERCOST : 1;
+	}
+	
+	@SuppressWarnings("unused")
+	private int cost(Edge edge)
+	{
+		// Object att = edge.getAttribute(weight);
+		
+		// return (Integer) ((att != null) ? att : 1);
+		return 1;
+	}
+	
+	
 	public void compute()
 	{
 		best = distMan(start, finish);
@@ -199,24 +214,12 @@ public class AStarPa implements Algorithm
 		
 	}
 	
-	private int cost(Node node)
-	{
-		return (node.getAttribute("monstre") == "true") ? 10 : 1;
-	}
 	
-	@SuppressWarnings("unused")
-	private int cost(Edge edge)
-	{
-		// Object att = edge.getAttribute(weight);
-		
-		// return (Integer) ((att != null) ? att : 1);
-		return 1;
-	}
 	
 	private Node getBest()
 	{
 		Node result = null;
-		while (result == null && graph.getNodeCount() >= best)
+		while (result == null )//&& graph.getNodeCount() >= best
 		{
 			if (open2.get(best) == null || open2.get(best).isEmpty())
 			{

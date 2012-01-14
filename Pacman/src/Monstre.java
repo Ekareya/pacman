@@ -131,7 +131,7 @@ public class Monstre extends Perso
 		
 		int x0 = (int) nextpos[0];
 		int y0 = (int) nextpos[1];
-		if (Math.abs(x0 - x + y0 - y) != 1)
+		if (Math.abs(x0 - x + y0 - y) != 1)//cas d'un tunnel 
 		{
 			if (x == x0)
 			{
@@ -147,7 +147,7 @@ public class Monstre extends Perso
 					direction = PConstants.LEFT;
 				
 			}
-		} else
+		} else// pas de tunnel
 		{
 			if (x == x0)
 			{

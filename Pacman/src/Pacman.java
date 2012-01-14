@@ -13,7 +13,7 @@ public class Pacman extends Perso
 	}
 	
 	// ---------------
-	void deplacer()
+	public void deplacer()
 	{
 		if (frame >= vitesse)
 		{	

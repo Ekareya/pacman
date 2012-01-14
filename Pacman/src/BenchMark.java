@@ -30,7 +30,7 @@ public class BenchMark
 		}
 		ThreadMXBean mx = ManagementFactory.getThreadMXBean();
 		
-		int j = 10;
+		int j = 1;
 		
 		
 		LabyGenerator gen = new LabyGenerator();
@@ -96,9 +96,9 @@ public class BenchMark
 		}
 		
 		System.out.println("taille: "+taille);
-		System.out.println("astarPa: "+(paTime/j)+" - "+(paSize/j));
-		System.out.println("astar: "+(asTime/j)+" - "+(asSize/j));
-		System.out.println("dijkstra: "+(diTime/j)+" - "+(diSize/j));
+		System.out.println("astarPa: "+(paTime/j)+"ns - "+(paSize/j)+"cases");
+		System.out.println("astar: "+(asTime/j)+"ns - "+(asSize/j)+"cases");
+		System.out.println("dijkstra: "+(diTime/j)+"ns - "+(diSize/j)+"cases");
 		System.out.println();
 		}
 	

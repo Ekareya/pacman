@@ -45,7 +45,7 @@ abstract class Perso
 		return laby.getNode(arg);
 	}
 	
-	abstract void deplacer();
+	public abstract void deplacer();
 	
 	public abstract void orienter();
 	
